@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
 import 'package:handy/helpers/safe_function.dart';
+import 'package:handy/models/handy_file.dart';
 import 'package:handy/pages/image_preview.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -9,27 +9,15 @@ import 'package:path_provider/path_provider.dart';
 import 'components/expandible_fab.dart';
 
 class Home extends StatefulWidget {
-  final CameraDescription camera;
-
-  Home({
-    Key? key,
-    required this.camera,
-  }) : super(key: key);
+  const Home({Key? key}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
 }
 
-class AppFile {
-  String kind;
-  String path;
-
-  AppFile(this.kind, this.path);
-}
-
 class _HomeState extends State<Home> {
   final ImagePicker _picker = ImagePicker();
-  List<AppFile> _fileArr = [];
+  List<HandyFile> _fileArr = [];
 
   Future<void> storeFile(XFile? file) async {
     if (file != null) {
@@ -43,7 +31,7 @@ class _HomeState extends State<Home> {
 
       await file.saveTo(imgPath);
 
-      final newFile = AppFile('image', imgPath);
+      final newFile = HandyFile('image', imgPath);
 
       setState(() {
         _fileArr.add(newFile);
@@ -91,7 +79,7 @@ class _HomeState extends State<Home> {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
         crossAxisCount: 2,
-        children: _fileArr.map((AppFile file) {
+        children: _fileArr.map((HandyFile file) {
           return Container(
             padding: const EdgeInsets.all(8),
             child: renderFile(file),
@@ -100,7 +88,7 @@ class _HomeState extends State<Home> {
         }).toList());
   }
 
-  Widget renderFile(AppFile file) {
+  Widget renderFile(HandyFile file) {
     switch (file.kind) {
       case 'image':
         return TextButton(
