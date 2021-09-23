@@ -39,6 +39,7 @@ dependencies:
   path:
   image_picker:
   photo_view:
+  sqflite:
 
 dev_dependencies:
   flutter_test:

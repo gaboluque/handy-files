@@ -17,7 +17,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final ImagePicker _picker = ImagePicker();
-  List<HandyFile> _fileArr = [];
+  final List<HandyFile> _fileArr = [];
 
   Future<void> storeFile(XFile? file) async {
     if (file != null) {
@@ -31,7 +31,7 @@ class _HomeState extends State<Home> {
 
       await file.saveTo(imgPath);
 
-      final newFile = HandyFile('image', imgPath);
+      final newFile = await HandyFile(kind: 'image', path: imgPath).save();
 
       setState(() {
         _fileArr.add(newFile);
@@ -97,9 +97,7 @@ class _HomeState extends State<Home> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => ImagePreview(
-                          imgPath: file.path,
-                        )),
+                    builder: (context) => ImagePreview(imgPath: file.path)),
               );
             });
       default:

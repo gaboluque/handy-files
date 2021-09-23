@@ -8,9 +8,9 @@ class SafeFunction {
 
   void run() async {
     try {
-      print("HERE");
       await fn();
     } catch (e) {
+      print(e);
       ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
         content: Text(e.toString()),
       ));
