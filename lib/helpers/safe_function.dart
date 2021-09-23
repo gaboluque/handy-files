@@ -10,7 +10,7 @@ class SafeFunction {
     try {
       await fn();
     } catch (e) {
-      print(e);
+      // print(e);
       ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
         content: Text(e.toString()),
       ));

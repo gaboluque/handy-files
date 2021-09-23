@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:handy/helpers/safe_function.dart';
 import 'package:handy/models/handy_file.dart';
 import 'package:handy/pages/image_preview.dart';
+import 'package:handy/repos/handy_files_repo.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -17,7 +18,21 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final ImagePicker _picker = ImagePicker();
-  final List<HandyFile> _fileArr = [];
+  List<HandyFile> _fileArr = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadFileList();
+  }
+
+  void loadFileList() async {
+    final newList = await HandyFilesRepo.getAllHandyFiles();
+
+    setState(() {
+      _fileArr = newList;
+    });
+  }
 
   Future<void> storeFile(XFile? file) async {
     if (file != null) {
@@ -88,18 +103,59 @@ class _HomeState extends State<Home> {
         }).toList());
   }
 
+  void deleteFile(HandyFile file) async {
+    await HandyFilesRepo.deleteHandyFileWithId(file.id!);
+    loadFileList();
+  }
+
+  confirmDelete(HandyFile file) {
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = TextButton(
+      child: const Text(
+        "Delete",
+        style: TextStyle(color: Colors.red),
+      ),
+      onPressed: () {
+        deleteFile(file);
+        Navigator.of(context).pop();
+      },
+    );
+    AlertDialog alert = AlertDialog(
+      title: const Text("Atention!"),
+      content: const Text("This file will be deleted!"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Widget renderFile(HandyFile file) {
     switch (file.kind) {
       case 'image':
-        return TextButton(
-            child: Image.file(File(file.path)),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ImagePreview(imgPath: file.path)),
-              );
-            });
+        return GestureDetector(
+          onLongPress: () => confirmDelete(file),
+          onTapUp: (TapUpDetails d) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ImagePreview(imgPath: file.path)),
+            );
+          },
+          child: Image.file(File(file.path)),
+        );
       default:
         return const Text("Kind not supported");
     }
